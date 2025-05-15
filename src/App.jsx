@@ -1,4 +1,3 @@
-echo "📝Creando App.jsx con libreta A-Z (barra derecha con colores)..."
 cat > src/App.jsx <<'EOF'
 import { useState, useEffect } from "react";
 
