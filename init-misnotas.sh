@@ -3,9 +3,9 @@
 echo "🧹 Limpiando y creando nuevo proyecto Vite + React..."
 npm create vite@latest . -- --template react --force
 
-echo "📦 Instalando dependencias..."
+echo "📦 Instalando dependencias base..."
 npm install
-npm install -D tailwindcss postcss autoprefixer
+npm install -D tailwindcss postcss autoprefixer @vitejs/plugin-react
 npx tailwindcss init -p
 
 echo "🎨 Configurando Tailwind CSS..."
@@ -13,7 +13,7 @@ sed -i "s/content: \[\]/content: ['./index.html', '.\/src\/**\/*.{js,ts,jsx,tsx}
 echo -e "@tailwind base;\n@tailwind components;\n@tailwind utilities;" > src/index.css
 
 echo "📝 Reemplazando App.jsx con libreta A-Z..."
-cat > src/App.jsx <<EOF
+cat > src/App.jsx <<'EOF'
 import { useState, useEffect } from "react";
 
 const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
@@ -52,7 +52,9 @@ export default function LibretaNotas() {
           <button
             key={letter}
             onClick={() => setSelectedLetter(letter)}
-            className={\`w-10 h-10 rounded-full font-bold \${selectedLetter === letter ? "bg-blue-400 text-white" : "bg-white"}\`}
+            className={`w-10 h-10 rounded-full font-bold ${
+              selectedLetter === letter ? "bg-blue-400 text-white" : "bg-white"
+            }`}
           >
             {letter}
           </button>
@@ -66,7 +68,9 @@ export default function LibretaNotas() {
           {colors.map((color) => (
             <button
               key={color}
-              className={\`w-8 h-8 rounded-full border-2 \${color} \${selectedColor === color ? "border-black" : "border-transparent"}\`}
+              className={`w-8 h-8 rounded-full border-2 ${color} ${
+                selectedColor === color ? "border-black" : "border-transparent"
+              }`}
               onClick={() => setSelectedColor(color)}
             />
           ))}
@@ -89,7 +93,7 @@ export default function LibretaNotas() {
 
         <div className="mt-4 space-y-4">
           {(notes[selectedLetter] || []).map((note, index) => (
-            <div key={index} className={\`p-4 rounded shadow \${note.color}\`}>
+            <div key={index} className={`p-4 rounded shadow ${note.color}`}>
               <div className="text-sm text-gray-600">{note.timestamp}</div>
               <div>{note.text}</div>
             </div>
@@ -101,32 +105,24 @@ export default function LibretaNotas() {
 }
 EOF
 
-echo "🔧 Configurando GitHub Pages..."
-npm install gh-pages --save-dev
-
-# Detectar nombre de usuario y repositorio automáticamente
-USER_NAME=$(gh api user | jq -r .login)
-REPO_NAME=$(basename `git rev-parse --show-toplevel`)
-
-# Actualizar package.json
-jq '.homepage = "https://'"$USER_NAME"'.github.io/'"$REPO_NAME"'"' package.json > tmp.json && mv tmp.json package.json
-jq '.scripts.deploy = "gh-pages -d dist"' package.json > tmp.json && mv tmp.json package.json
-
-# Configurar vite.config.js
-echo "import { defineConfig } from 'vite'
+echo "🔧 Configurando vite.config.js..."
+cat > vite.config.js <<EOF
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/$REPO_NAME/',
-  plugins: [react()]
-})" > vite.config.js
+  plugins: [react()],
+  base: '',
+})
+EOF
 
-echo "🚀 Haciendo commit y desplegando..."
-git add .
-git commit -m "🎉 Proyecto Vite + Libreta A-Z inicializado"
-npm run build
-npm run deploy
+echo "✅ Proyecto configurado. Para ejecutarlo localmente, corre:"
+echo "   npm run dev"
 
 echo ""
-echo "✅ Proyecto desplegado en:"
-echo "🌍 https://$USER_NAME.github.io/$REPO_NAME"
+echo "📌 Si deseas desplegar en GitHub Pages, asegúrate de:"
+echo "1. Ejecutar:    npm run build"
+echo "2. Instalar:    npm install gh-pages --save-dev"
+echo "3. Agregar en package.json:"
+echo '   "deploy": "gh-pages -d dist"'
+echo "4. Luego:       npm run deploy"
