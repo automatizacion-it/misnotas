@@ -1,9 +1,9 @@
 #!/bin/bash
 
-echo "📦 Inicializando proyecto Vite + React en carpeta actual..."
-npm create vite@latest . -- --template react
+echo "🧹 Limpiando y creando nuevo proyecto Vite + React..."
+npm create vite@latest . -- --template react --force
 
-echo "📥 Instalando dependencias..."
+echo "📦 Instalando dependencias..."
 npm install
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
@@ -101,20 +101,18 @@ export default function LibretaNotas() {
 }
 EOF
 
-echo "🌐 Verificando configuración Git..."
-git init
-git remote -v || gh repo view --web
-
-echo "🚀 Instalando y configurando GitHub Pages..."
+echo "🔧 Configurando GitHub Pages..."
 npm install gh-pages --save-dev
 
+# Detectar nombre de usuario y repositorio automáticamente
 USER_NAME=$(gh api user | jq -r .login)
 REPO_NAME=$(basename `git rev-parse --show-toplevel`)
 
+# Actualizar package.json
 jq '.homepage = "https://'"$USER_NAME"'.github.io/'"$REPO_NAME"'"' package.json > tmp.json && mv tmp.json package.json
 jq '.scripts.deploy = "gh-pages -d dist"' package.json > tmp.json && mv tmp.json package.json
 
-echo "🔧 Configurando vite.config.js..."
+# Configurar vite.config.js
 echo "import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -123,8 +121,9 @@ export default defineConfig({
   plugins: [react()]
 })" > vite.config.js
 
+echo "🚀 Haciendo commit y desplegando..."
 git add .
-git commit -m "🚀 Inicialización del proyecto misnotas"
+git commit -m "🎉 Proyecto Vite + Libreta A-Z inicializado"
 npm run build
 npm run deploy
 
