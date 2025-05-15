@@ -1,7 +1,9 @@
+echo "📝 Creando App.jsx con libreta A-Z (barra derecha con colores)..."
+cat > src/App.jsx <<'EOF'
 import { useState, useEffect } from "react";
 
 const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
-const colors = ["bg-yellow-100", "bg-green-100", "bg-blue-100"];
+const colors = ["bg-yellow-300", "bg-green-300", "bg-blue-300"];
 
 export default function LibretaNotas() {
   const [selectedLetter, setSelectedLetter] = useState("A");
@@ -31,20 +33,6 @@ export default function LibretaNotas() {
 
   return (
     <div className="flex h-screen">
-      <aside className="w-16 bg-gray-100 p-2 flex flex-col items-center space-y-2 overflow-y-auto">
-        {letters.map((letter) => (
-          <button
-            key={letter}
-            onClick={() => setSelectedLetter(letter)}
-            className={`w-10 h-10 rounded-full font-bold ${
-              selectedLetter === letter ? "bg-blue-400 text-white" : "bg-white"
-            }`}
-          >
-            {letter}
-          </button>
-        ))}
-      </aside>
-
       <main className="flex-1 p-4 overflow-y-auto">
         <h1 className="text-xl font-bold mb-4">Notas para la letra "{selectedLetter}"</h1>
 
@@ -84,6 +72,21 @@ export default function LibretaNotas() {
           ))}
         </div>
       </main>
+
+      <aside className="w-16 bg-gray-100 p-2 flex flex-col items-center space-y-2 overflow-y-auto">
+        {letters.map((letter, i) => (
+          <button
+            key={letter}
+            onClick={() => setSelectedLetter(letter)}
+            className={`w-10 h-10 rounded-full font-bold text-white ${
+              selectedLetter === letter ? "ring-2 ring-black" : ""
+            } ${colors[i % colors.length]}`}
+          >
+            {letter}
+          </button>
+        ))}
+      </aside>
     </div>
   );
 }
+EOF
